@@ -19,4 +19,4 @@ blue
 SCK     ->  D18
 
 orange
-SDA     ->  D21  (flexible)
+SDA     ->  D5 
