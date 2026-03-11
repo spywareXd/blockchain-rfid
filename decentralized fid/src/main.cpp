@@ -4,6 +4,8 @@
 #define SS_PIN 5
 #define RST_PIN 22
 #define BUZZER_PIN 13
+#define GREEN_LED_PIN 12
+#define RED_LED_PIN 14
 #define MAX_AUTH_CARDS 20
 
 MFRC522 rfid(SS_PIN, RST_PIN);
@@ -25,6 +27,18 @@ void beep(int duration) {
   digitalWrite(BUZZER_PIN, HIGH);
   delay(duration);
   digitalWrite(BUZZER_PIN, LOW);
+}
+
+void flashGreen(int duration) {
+  digitalWrite(GREEN_LED_PIN, HIGH);
+  delay(duration);
+  digitalWrite(GREEN_LED_PIN, LOW);
+}
+
+void flashRed(int duration) {
+  digitalWrite(RED_LED_PIN, HIGH);
+  delay(duration);
+  digitalWrite(RED_LED_PIN, LOW);
 }
 
 bool uidMatches(byte *uid1, byte *uid2, byte size) {
@@ -67,12 +81,10 @@ bool isAuthorized(byte *uid, byte size) {
 }
 
 bool addAuthorizedCard(byte *uid, byte size) {
-  // Already exists
   if (isAuthorized(uid, size)) {
     return false;
   }
 
-  // Find empty slot
   for (int i = 0; i < MAX_AUTH_CARDS; i++) {
     if (!authorizedCards[i].used) {
       copyUID(uid, authorizedCards[i].uid, size);
@@ -82,7 +94,6 @@ bool addAuthorizedCard(byte *uid, byte size) {
     }
   }
 
-  // No free slot
   return false;
 }
 
@@ -117,7 +128,11 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
 
-  // Initialize storage
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);
+  digitalWrite(GREEN_LED_PIN, LOW);
+  digitalWrite(RED_LED_PIN, LOW);
+
   for (int i = 0; i < MAX_AUTH_CARDS; i++) {
     authorizedCards[i].used = false;
     authorizedCards[i].size = 0;
@@ -139,11 +154,11 @@ void loop() {
   printUID(rfid.uid.uidByte, rfid.uid.size);
   Serial.println();
 
-  // Admin card scanned
   if (isAdminCard(rfid.uid.uidByte, rfid.uid.size)) {
     enrollMode = true;
     Serial.println("Admin card detected. Scan next card to authorize.");
     beep(300);
+    flashGreen(200);
 
     rfid.PICC_HaltA();
     rfid.PCD_StopCrypto1();
@@ -151,7 +166,6 @@ void loop() {
     return;
   }
 
-  // Enroll next scanned card
   if (enrollMode) {
     enrollMode = false;
 
@@ -160,6 +174,8 @@ void loop() {
       Serial.print("Total authorized cards: ");
       Serial.println(getAuthorizedCount());
       printAuthorizedCards();
+
+      flashGreen(500);
       beep(500);
     } else {
       if (isAuthorized(rfid.uid.uidByte, rfid.uid.size)) {
@@ -167,6 +183,8 @@ void loop() {
       } else {
         Serial.println("Authorization list is full.");
       }
+
+      flashRed(500);
       beep(800);
     }
 
@@ -176,12 +194,13 @@ void loop() {
     return;
   }
 
-  // Normal access check
   if (isAuthorized(rfid.uid.uidByte, rfid.uid.size)) {
     Serial.println("Access permitted");
+    flashGreen(500);
     beep(150);
   } else {
     Serial.println("Access denied");
+    flashRed(500);
     beep(600);
   }
 
