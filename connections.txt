@@ -4,7 +4,7 @@ red:
 3.3v    ->  Vin
 
 white
-REST    ->  D22
+RST    ->  D22  (flexible)
 
 black
 GND     ->  GND
@@ -19,4 +19,4 @@ blue
 SCK     ->  D18
 
 orange
-SDA     ->  D21
+SDA     ->  D21  (flexible)
