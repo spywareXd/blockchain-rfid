@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RFID Blockchain Backend</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Blockchain RFID Backend</p>
+          <h1>Hash the UID, write it on-chain, and verify access.</h1>
+          <p class="lede">
+            This frontend talks directly to the backend API. Enter an RFID UID, preview the SHA-256
+            hash, enroll it on-chain, or verify it against the smart contract.
+          </p>
+        </div>
+        <aside class="status-card">
+          <span class="status-label">Backend status</span>
+          <strong id="healthText">Checking...</strong>
+          <small id="contractText">Contract: loading</small>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <label for="uidInput">RFID UID</label>
+        <input id="uidInput" type="text" placeholder="17:63:0d:06" autocomplete="off" />
+        <p class="hint">You can paste a UID with colons, spaces, or 0x prefixes.</p>
+
+        <div class="actions">
+          <button id="hashBtn" type="button">Hash UID</button>
+          <button id="enrollBtn" type="button" class="primary">Enroll on Chain</button>
+          <button id="verifyBtn" type="button">Verify on Chain</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Normalized UID</h2>
+          <pre id="normalizedUid">-</pre>
+        </article>
+
+        <article class="card">
+          <h2>SHA-256 Hash</h2>
+          <pre id="identityHash">-</pre>
+        </article>
+      </section>
+
+      <section class="card output">
+        <h2>Response</h2>
+        <pre id="output">Waiting for input...</pre>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
