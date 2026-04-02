@@ -4,6 +4,9 @@ const identityHashEl = document.getElementById("identityHash");
 const outputEl = document.getElementById("output");
 const healthText = document.getElementById("healthText");
 const contractText = document.getElementById("contractText");
+const blockHeightEl = document.getElementById("blockHeight");
+const blockHashEl = document.getElementById("blockHash");
+const previousHashEl = document.getElementById("previousHash");
 
 let enrollModeUnlocked = false;
 
@@ -72,6 +75,10 @@ async function handleEnroll(uid) {
   delete data.normalizedUid;
 
   identityHashEl.textContent = data.identityHash || "-";
+  blockHeightEl.textContent = data.blockHeight !== undefined ? data.blockHeight : "-";
+  blockHashEl.textContent = data.blockHash || "-";
+  previousHashEl.textContent = data.previousHash || "-";
+  
   setOutput(formatBody(data));
   enrollModeUnlocked = false;
   
@@ -87,6 +94,10 @@ async function handleVerify(uid) {
   delete data.normalizedUid;
   
   identityHashEl.textContent = data.identityHash || "-";
+  blockHeightEl.textContent = data.blockHeight !== undefined ? data.blockHeight : "-";
+  blockHashEl.textContent = data.blockHash || "-";
+  previousHashEl.textContent = data.previousHash || "-";
+  
   setOutput(formatBody(data), !data.authorized);
   
   triggerAuthAnimation(data.authorized);

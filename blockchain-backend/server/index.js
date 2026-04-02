@@ -19,6 +19,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const DEPLOYMENT_FILE = process.env.DEPLOYMENT_FILE || path.join(__dirname, "..", "deployments", "localhost.json");
 const ARTIFACT_PATH = path.join(__dirname, "..", "artifacts", "contracts", "IdentityRegistry.sol", "IdentityRegistry.json");
 
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 let contract;
 let contractAddress;
 let sseClients = [];
@@ -79,7 +80,6 @@ async function deployIfNeeded(signer, artifact) {
 }
 
 async function createContract() {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = PRIVATE_KEY ? new ethers.Wallet(PRIVATE_KEY, provider) : await provider.getSigner(0);
   const artifact = loadArtifact();
   const address = process.env.CONTRACT_ADDRESS || (await deployIfNeeded(signer, artifact));
@@ -162,14 +162,20 @@ app.post("/enroll", async (req, res) => {
     }
 
     const tx = await contract.authorizeHash(toBytes32(identity.identityHash));
-    await tx.wait();
+    const receipt = await tx.wait();
+    
+    // Fetch the block to get the parent hash
+    const block = await provider.getBlock(receipt.blockNumber);
 
     return res.json({
       authorized: true,
       normalizedUid: identity.normalizedUid,
       identityHash: identity.identityHash,
       transactionHash: tx.hash,
-      message: "Hash stored on-chain"
+      message: "Hash stored on-chain",
+      blockHeight: receipt.blockNumber,
+      blockHash: receipt.blockHash,
+      previousHash: block.parentHash
     });
   } catch (error) {
     return res.status(500).json({
@@ -190,11 +196,18 @@ app.post("/verify", async (req, res) => {
     }
 
     const authorized = await contract.isAuthorized(toBytes32(identity.identityHash));
+    
+    // Fetch latest block data
+    const block = await provider.getBlock("latest");
+    
     return res.json({
       authorized,
       normalizedUid: identity.normalizedUid,
       identityHash: identity.identityHash,
-      message: authorized ? "Identity verified on-chain" : "Identity not found on-chain"
+      message: authorized ? "Identity verified on-chain" : "Identity not found on-chain",
+      blockHeight: block.number,
+      blockHash: block.hash,
+      previousHash: block.parentHash
     });
   } catch (error) {
     return res.status(500).json({
