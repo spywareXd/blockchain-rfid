@@ -1,0 +1,22 @@
+RFID  -->  ESP32
+
+red:
+3.3v    ->  Vin
+
+white
+RST    ->  D22  (flexible)
+
+black
+GND     ->  GND
+
+green
+MISO    ->  D19
+
+yellow
+MOSI    ->  D23
+
+blue
+SCK     ->  D18
+
+orange
+SDA     ->  D5 

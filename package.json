@@ -1,0 +1,14 @@
+{
+  "name": "blockchain-rfid-root",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root scripts for the RFID blockchain backend workflow",
+  "scripts": {
+    "backend:install": "npm --prefix blockchain-backend install",
+    "backend:compile": "npm --prefix blockchain-backend run compile",
+    "backend:node": "npm --prefix blockchain-backend run node",
+    "backend:deploy": "npm --prefix blockchain-backend run deploy:local",
+    "backend:server": "npm --prefix blockchain-backend run server",
+    "backend:run": "npm run backend:compile && npm run backend:deploy && npm run backend:server"
+  }
+}
