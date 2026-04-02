@@ -202,3 +202,30 @@ pre {
     padding-top: 20px;
   }
 }
+
+@keyframes auth-fade-green {
+  0% { background-color: rgba(57, 217, 138, 0.4); border-color: var(--good); box-shadow: 0 0 20px 5px rgba(57, 217, 138, 0.4); }
+  100% { background-color: var(--panel); border-color: var(--panel-border); box-shadow: var(--shadow); }
+}
+
+@keyframes auth-fade-red {
+  0% { background-color: rgba(255, 107, 107, 0.4); border-color: var(--bad); box-shadow: 0 0 20px 5px rgba(255, 107, 107, 0.4); }
+  100% { background-color: var(--panel); border-color: var(--panel-border); box-shadow: var(--shadow); }
+}
+
+@keyframes auth-fade-blue {
+  0% { background-color: rgba(117, 167, 255, 0.4); border-color: var(--accent-strong); box-shadow: 0 0 20px 5px rgba(117, 167, 255, 0.4); }
+  100% { background-color: var(--panel); border-color: var(--panel-border); box-shadow: var(--shadow); }
+}
+
+.auth-authorized {
+  animation: auth-fade-green 3s ease-out forwards;
+}
+
+.auth-unauthorized {
+  animation: auth-fade-red 3s ease-out forwards;
+}
+
+.auth-admin {
+  animation: auth-fade-blue 3s ease-out forwards;
+}

@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { ethers } = require("ethers");
-const { buildIdentityFromUid, getIdentityFromBody } = require("./identity");
+const { buildIdentityFromUid, getIdentityFromBody, normalizeUidInput } = require("./identity");
 
 dotenv.config();
 
@@ -21,6 +21,7 @@ const ARTIFACT_PATH = path.join(__dirname, "..", "artifacts", "contracts", "Iden
 
 let contract;
 let contractAddress;
+let sseClients = [];
 
 function loadArtifact() {
   if (!fs.existsSync(ARTIFACT_PATH)) {
@@ -114,6 +115,39 @@ app.post("/hash", (req, res) => {
       ok: false,
       message: error.message || "Hashing failed"
     });
+  }
+});
+
+app.get("/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  const clientId = Date.now();
+  sseClients.push({ id: clientId, res });
+
+  req.on("close", () => {
+    sseClients = sseClients.filter((c) => c.id !== clientId);
+  });
+});
+
+app.post("/scan", (req, res) => {
+  try {
+    const rawUid = req.body?.uid;
+    if (!rawUid) {
+      return res.status(400).json({ ok: false, message: "Missing uid" });
+    }
+    const normalizedUid = normalizeUidInput(rawUid);
+    const adminNormalized = normalizeUidInput(process.env.ADMIN_UID || "17:63:0d:06");
+    const isAdmin = (normalizedUid === adminNormalized);
+
+    const payload = JSON.stringify({ uid: normalizedUid, isAdmin });
+    sseClients.forEach((client) => client.res.write(`data: ${payload}\n\n`));
+
+    return res.json({ ok: true, pushed: true });
+  } catch (err) {
+    return res.status(400).json({ ok: false, message: err.message });
   }
 });
 

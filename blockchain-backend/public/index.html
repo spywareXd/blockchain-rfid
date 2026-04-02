@@ -24,22 +24,12 @@
         </aside>
       </section>
 
-      <section class="panel">
-        <label for="uidInput">RFID UID</label>
-        <input id="uidInput" type="text" placeholder="17:63:0d:06" autocomplete="off" />
-        <p class="hint">You can paste a UID with colons, spaces, or 0x prefixes.</p>
 
-        <div class="actions">
-          <button id="hashBtn" type="button">Hash UID</button>
-          <button id="enrollBtn" type="button" class="primary">Enroll on Chain</button>
-          <button id="verifyBtn" type="button">Verify on Chain</button>
-        </div>
-      </section>
 
       <section class="grid">
-        <article class="card">
-          <h2>Normalized UID</h2>
-          <pre id="normalizedUid">-</pre>
+        <article class="card" id="authStatusCard">
+          <h2>Authorization Status</h2>
+          <pre id="authStatusText">Awaiting scan...</pre>
         </article>
 
         <article class="card">

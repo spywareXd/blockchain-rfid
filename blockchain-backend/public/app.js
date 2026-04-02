@@ -1,12 +1,11 @@
-const uidInput = document.getElementById("uidInput");
-const hashBtn = document.getElementById("hashBtn");
-const enrollBtn = document.getElementById("enrollBtn");
-const verifyBtn = document.getElementById("verifyBtn");
-const normalizedUidEl = document.getElementById("normalizedUid");
+const authStatusCard = document.getElementById("authStatusCard");
+const authStatusText = document.getElementById("authStatusText");
 const identityHashEl = document.getElementById("identityHash");
 const outputEl = document.getElementById("output");
 const healthText = document.getElementById("healthText");
 const contractText = document.getElementById("contractText");
+
+let enrollModeUnlocked = false;
 
 function setOutput(message, isError = false) {
   outputEl.textContent = message;
@@ -49,57 +48,80 @@ async function refreshHealth() {
   }
 }
 
-function readUid() {
-  const value = uidInput.value.trim();
-  if (!value) {
-    throw new Error("Enter an RFID UID first");
+function triggerAuthAnimation(isAuthorized) {
+  // Remove existing animation classes to re-trigger
+  authStatusCard.classList.remove("auth-authorized", "auth-unauthorized", "auth-admin");
+  // Force a reflow to restart animation
+  void authStatusCard.offsetWidth;
+  
+  if (isAuthorized) {
+    authStatusCard.classList.add("auth-authorized");
+    authStatusText.textContent = "Access Permitted";
+  } else {
+    authStatusCard.classList.add("auth-unauthorized");
+    authStatusText.textContent = "Access Denied";
   }
-  return value;
 }
 
-async function handleHash() {
-  const uid = readUid();
-  setOutput("Hashing UID...");
-  const data = await requestJson("/hash", { uid });
-  normalizedUidEl.textContent = data.normalizedUid;
-  identityHashEl.textContent = data.identityHash;
-  setOutput(formatBody(data));
-}
-
-async function handleEnroll() {
-  const uid = readUid();
+async function handleEnroll(uid) {
   setOutput("Sending enrollment to blockchain...");
+  authStatusText.textContent = "Processing Enrollment...";
   const data = await requestJson("/enroll", { uid });
-  normalizedUidEl.textContent = data.normalizedUid || "-";
+  
+  // Keep the JSON response format but hide the normalizedUid from it!
+  delete data.normalizedUid;
+
   identityHashEl.textContent = data.identityHash || "-";
   setOutput(formatBody(data));
+  enrollModeUnlocked = false;
+  
+  triggerAuthAnimation(true);
 }
 
-async function handleVerify() {
-  const uid = readUid();
+async function handleVerify(uid) {
   setOutput("Checking chain authorization...");
+  authStatusText.textContent = "Verifying on Chain...";
   const data = await requestJson("/verify", { uid });
-  normalizedUidEl.textContent = data.normalizedUid || "-";
+  
+  // Keep the JSON response format but hide the normalizedUid from it!
+  delete data.normalizedUid;
+  
   identityHashEl.textContent = data.identityHash || "-";
   setOutput(formatBody(data), !data.authorized);
+  
+  triggerAuthAnimation(data.authorized);
 }
 
-hashBtn.addEventListener("click", () => {
-  handleHash().catch((error) => setOutput(error.message, true));
-});
-
-enrollBtn.addEventListener("click", () => {
-  handleEnroll().catch((error) => setOutput(error.message, true));
-});
-
-verifyBtn.addEventListener("click", () => {
-  handleVerify().catch((error) => setOutput(error.message, true));
-});
-
-uidInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    handleHash().catch((error) => setOutput(error.message, true));
-  }
-});
-
 refreshHealth();
+
+const eventSource = new EventSource("/events");
+eventSource.onmessage = (event) => {
+  try {
+    const data = JSON.parse(event.data);
+    
+    if (data.isAdmin) {
+      enrollModeUnlocked = true;
+      setOutput("Admin card detected. Ready to enroll next card.");
+      authStatusText.textContent = "Admin Mode Unlocked";
+      authStatusCard.classList.remove("auth-authorized", "auth-unauthorized", "auth-admin");
+      void authStatusCard.offsetWidth;
+      authStatusCard.classList.add("auth-admin");
+    } else {
+      if (enrollModeUnlocked) {
+        setOutput("Normal card detected. Auto-enrolling...");
+        handleEnroll(data.uid).catch((error) => {
+          setOutput(error.message, true);
+          triggerAuthAnimation(false);
+        });
+      } else {
+        setOutput("Normal card detected. Auto-verifying...");
+        handleVerify(data.uid).catch((error) => {
+          setOutput(error.message, true);
+          triggerAuthAnimation(false);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("SSE parse error", err);
+  }
+};
