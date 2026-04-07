@@ -1,0 +1,58 @@
+{
+  "uidColors": {
+    "17630d06": "#ff6b6b",
+    "a1b2c3d4": "#00c2a8",
+    "b5c6d7e8": "#ffd166",
+    "0fab1234": "#5da9e9",
+    "c001d00d": "#c77dff",
+    "d1fd4206": "#e9499e",
+    "f653e711": "#71e949"
+  },
+  "scans": [
+    {
+      "id": "mock-1",
+      "uid": "17630d06",
+      "lat": 12.9692,
+      "lng": 79.1559,
+      "label": "VIT Vellore Campus",
+      "source": "mock",
+      "scannedAt": "2026-04-06T08:30:00.000Z"
+    },
+    {
+      "id": "mock-2",
+      "uid": "a1b2c3d4",
+      "lat": 12.9165,
+      "lng": 79.1325,
+      "label": "Vellore Fort",
+      "source": "mock",
+      "scannedAt": "2026-04-06T09:00:00.000Z"
+    },
+    {
+      "id": "mock-3",
+      "uid": "b5c6d7e8",
+      "lat": 12.9244,
+      "lng": 79.1353,
+      "label": "CMC Vellore",
+      "source": "mock",
+      "scannedAt": "2026-04-06T09:20:00.000Z"
+    },
+    {
+      "id": "mock-4",
+      "uid": "0fab1234",
+      "lat": 12.9478,
+      "lng": 79.1231,
+      "label": "Sathuvachari, Vellore",
+      "source": "mock",
+      "scannedAt": "2026-04-06T10:10:00.000Z"
+    },
+    {
+      "id": "mock-5",
+      "uid": "c001d00d",
+      "lat": 12.9786,
+      "lng": 79.2473,
+      "label": "Sripuram Golden Temple",
+      "source": "mock",
+      "scannedAt": "2026-04-06T11:05:00.000Z"
+    }
+  ]
+}

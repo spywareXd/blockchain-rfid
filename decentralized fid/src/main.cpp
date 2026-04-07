@@ -2,6 +2,8 @@
 #include <MFRC522.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <TinyGPS++.h>
+#include "secrets.h"
 
 #define SS_PIN 5
 #define RST_PIN 22
@@ -11,11 +13,14 @@
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 
-// --- UPDATE THESE CONSTANTS BEFORE UPLOADING ---
-const char* ssid = "Colle$ttye";
-const char* password = "bluntonomics";
-// Adjust backend IP to point to the computer running the Node server.
-const char* backendUrl = "http://10.208.251.182:3000/scan"; 
+// NEO-6M GPS using HardwareSerial 2
+// RX2 = GPIO 16, TX2 = GPIO 17
+TinyGPSPlus gps;
+HardwareSerial gpsSerial(2);
+
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* backendUrl = BACKEND_URL;
 
 void beep(int duration) {
   digitalWrite(BUZZER_PIN, HIGH);
@@ -50,8 +55,18 @@ void sendScanToBackend(String uidHex) {
     http.begin(backendUrl);
     http.addHeader("Content-Type", "application/json");
 
-    // Manually constructing json payload
-    String requestBody = "{\"uid\":\"" + uidHex + "\"}";
+    String requestBody = "{\"uid\":\"" + uidHex + "\"";
+    
+    if (gps.location.isValid()) {
+      requestBody += ", \"lat\": " + String(gps.location.lat(), 6);
+      requestBody += ", \"lng\": " + String(gps.location.lng(), 6);
+      Serial.println("Location attached: " + String(gps.location.lat(), 6) + ", " + String(gps.location.lng(), 6));
+    } else {
+      Serial.println("No valid GPS fix available yet. Sending UID only.");
+    }
+    
+    requestBody += "}";
+    
     int httpResponseCode = http.POST(requestBody);
 
     if (httpResponseCode == 200) {
@@ -78,6 +93,9 @@ void setup() {
   SPI.begin();
   rfid.PCD_Init();
   
+  // Begin GPS Serial on UART2 (pins 16=RX, 17=TX), standard NEO-6M baud is 9600
+  gpsSerial.begin(9600, SERIAL_8N1, 16, 17);
+  
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   pinMode(RED_LED_PIN, OUTPUT);
@@ -94,10 +112,16 @@ void setup() {
   Serial.println("\nWiFi connected.");
   Serial.print("Local IP address: ");
   Serial.println(WiFi.localIP());
-  Serial.println("\nPlace RFID card near the reader to relay it to the Browser UI...");
+  Serial.println("\nWaiting for GPS lock... Place RFID card near the reader to scan.");
 }
 
 void loop() {
+  // Constantly poll GPS data
+  while (gpsSerial.available() > 0) {
+    gps.encode(gpsSerial.read());
+  }
+
+  // Check for RFID cards
   if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) {
     return;
   }

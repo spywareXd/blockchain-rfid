@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RFID Blockchain Backend</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -11,10 +12,10 @@
       <section class="hero">
         <div>
           <p class="eyebrow">Blockchain RFID Backend</p>
-          <h1>Hash the UID, write it on-chain, and verify access.</h1>
+          <h1>Hash the UID, write it on-chain, and map live RFID coordinates.</h1>
           <p class="lede">
-            This frontend talks directly to the backend API. Enter an RFID UID, preview the SHA-256
-            hash, enroll it on-chain, or verify it against the smart contract.
+            The scan flow still verifies cards on-chain, while the map view now stores NEO-6M GPS
+            coordinates in a persistent file and plots each UID with its own color.
           </p>
         </div>
         <aside class="status-card">
@@ -26,24 +27,108 @@
 
 
 
-      <section class="grid">
-        <article class="card" id="authStatusCard">
-          <h2>Authorization Status</h2>
-          <pre id="authStatusText">Awaiting scan...</pre>
-        </article>
+      <nav class="tab-bar" aria-label="Dashboard tabs">
+        <button class="tab-button active" type="button" data-target="scanView" aria-selected="true">SCAN</button>
+        <button class="tab-button" type="button" data-target="mapView" aria-selected="false">MAP</button>
+      </nav>
 
-        <article class="card">
-          <h2>SHA-256 Hash</h2>
-          <pre id="identityHash">-</pre>
-        </article>
+      <section id="scanView" class="tab-view active">
+        <section class="grid">
+          <article class="card" id="authStatusCard">
+            <h2>Authorization Status</h2>
+            <pre id="authStatusText">Awaiting scan...</pre>
+          </article>
+
+          <article class="card">
+            <h2>SHA-256 Hash</h2>
+            <pre id="identityHash">-</pre>
+          </article>
+        </section>
+
+        <section class="grid">
+          <article class="card">
+            <h2>Block Height</h2>
+            <pre id="blockHeight">-</pre>
+          </article>
+
+          <article class="card">
+            <h2>Block Hash</h2>
+            <pre id="blockHash" class="hash-output">-</pre>
+          </article>
+
+          <article class="card">
+            <h2>Previous Hash</h2>
+            <pre id="previousHash" class="hash-output">-</pre>
+          </article>
+        </section>
+
+        <section class="card output">
+          <h2>Response</h2>
+          <pre id="output">Waiting for input...</pre>
+        </section>
+
+        <section class="card chain-panel">
+          <div class="chain-panel-header">
+            <div>
+              <h2>Hardhat Local Chain</h2>
+              <p class="chain-subtitle">Recent blocks shown as a linked schematic from newest to older.</p>
+            </div>
+            <button id="refreshChainButton" type="button">Refresh Chain</button>
+          </div>
+          <div id="chainDiagram" class="chain-diagram">
+            <p class="chain-placeholder">Loading local blockchain structure...</p>
+          </div>
+        </section>
       </section>
 
-      <section class="card output">
-        <h2>Response</h2>
-        <pre id="output">Waiting for input...</pre>
+      <section id="mapView" class="tab-view">
+        <section class="grid stats-grid">
+          <article class="card stat-card">
+            <h2>Tracked UIDs</h2>
+            <strong id="trackedUidCount" class="stat-value">-</strong>
+          </article>
+
+          <article class="card stat-card">
+            <h2>Stored GPS Scans</h2>
+            <strong id="totalCoordinateScans" class="stat-value">-</strong>
+          </article>
+
+          <article class="card stat-card">
+            <h2>Current Map Focus</h2>
+            <strong id="mapCenterLabel" class="stat-value stat-label">Vellore, Tamil Nadu</strong>
+          </article>
+        </section>
+
+        <section class="grid map-layout">
+          <article class="card map-card">
+            <div class="map-card-header">
+              <div>
+                <h2>NEO-6M Coordinate Map</h2>
+                <p id="mapStatusText" class="chain-subtitle">Loading saved coordinates...</p>
+              </div>
+              <button id="refreshLocationsButton" type="button">Refresh Locations</button>
+            </div>
+            <div id="gpsMap" class="map-canvas"></div>
+          </article>
+
+          <article class="card map-side-card">
+            <h2>UID Color Legend</h2>
+            <div id="mapLegend" class="legend-list">
+              <p class="chain-placeholder">Waiting for coordinate data...</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="card history-card">
+          <h2>Recent Coordinate Scans</h2>
+          <div id="scanHistory" class="scan-history">
+            <p class="chain-placeholder">Waiting for coordinate data...</p>
+          </div>
+        </section>
       </section>
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

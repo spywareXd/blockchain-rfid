@@ -34,6 +34,36 @@ body {
   padding: 48px 0 56px;
 }
 
+.tab-bar {
+  display: inline-flex;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 22px;
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  background: rgba(11, 20, 36, 0.76);
+  backdrop-filter: blur(12px);
+}
+
+.tab-button {
+  min-width: 116px;
+  letter-spacing: 0.12em;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #59d1ff, #7ef29a);
+  color: #06101d;
+  border-color: transparent;
+}
+
+.tab-view {
+  display: none;
+}
+
+.tab-view.active {
+  display: block;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
@@ -171,6 +201,12 @@ button:hover {
   padding: 20px;
 }
 
+.hash-output {
+  font-size: 0.8em;
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+}
+
 pre {
   margin: 0;
   white-space: pre-wrap;
@@ -183,6 +219,175 @@ pre {
   min-height: 90px;
 }
 
+.chain-panel {
+  margin-top: 18px;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stat-card {
+  min-height: 132px;
+}
+
+.stat-value {
+  display: block;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  font-weight: 800;
+  color: #fff0a8;
+}
+
+.stat-label {
+  font-size: 1.15rem;
+  color: #9fe7ff;
+  line-height: 1.4;
+}
+
+.chain-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.chain-subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.chain-diagram {
+  display: grid;
+  gap: 12px;
+}
+
+.chain-block {
+  border: 1px solid rgba(117, 167, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(8, 17, 31, 0.72);
+  padding: 16px;
+}
+
+.chain-block-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.chain-block-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chain-block-meta span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chain-block-meta strong {
+  display: block;
+  color: var(--text);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9rem;
+}
+
+.chain-link {
+  justify-self: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chain-placeholder {
+  margin: 0;
+  color: var(--muted);
+}
+
+.map-layout {
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.75fr);
+}
+
+.map-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.map-canvas {
+  height: 520px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(117, 167, 255, 0.18);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(89, 209, 255, 0.18), transparent 25%),
+    linear-gradient(180deg, rgba(10, 20, 33, 0.95), rgba(5, 10, 18, 0.95));
+}
+
+.map-fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 24px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.legend-list,
+.scan-history {
+  display: grid;
+  gap: 12px;
+}
+
+.legend-item,
+.history-item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid rgba(117, 167, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(8, 17, 31, 0.62);
+}
+
+.legend-item strong,
+.history-item strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-family: "Courier New", Courier, monospace;
+}
+
+.legend-item small,
+.history-item small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.legend-swatch,
+.history-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  margin-top: 2px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.history-card {
+  margin-top: 18px;
+}
+
 .success {
   color: var(--good);
 }
@@ -193,8 +398,35 @@ pre {
 
 @media (max-width: 780px) {
   .hero,
-  .grid {
+  .grid,
+  .stats-grid,
+  .map-layout {
     grid-template-columns: 1fr;
+  }
+
+  .chain-panel-header,
+  .chain-block-meta,
+  .map-card-header {
+    grid-template-columns: 1fr;
+  }
+
+  .chain-panel-header,
+  .map-card-header {
+    display: grid;
+  }
+
+  .tab-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tab-button {
+    width: 100%;
+  }
+
+  .map-canvas {
+    height: 380px;
   }
 
   .shell {
